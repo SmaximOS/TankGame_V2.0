@@ -23,9 +23,11 @@ void Tank::draw(int colorMode) const {
     gotoxy(GameConfig::MINX + pos.getX(), GameConfig::MINY + pos.getY());
     cout << 'O';
 
-    if (isCannonActive_) {
+    if (hasCannon) {
         Point tip = pos.add(getPointFromDir(cannonDir));
-        gotoxy(GameConfig::MINX + tip.getX(), GameConfig::MINY + tip.getY());
+        int tipX = (tip.getX() + GameConfig::WIDTH) % GameConfig::WIDTH;
+        int tipY = (tip.getY() + GameConfig::HEIGHT) % GameConfig::HEIGHT;
+        gotoxy(GameConfig::MINX + tipX, GameConfig::MINY + tipY);
         cout << getCannonChar(cannonDir);
     }
 
@@ -63,14 +65,12 @@ void Tank::erase(const char board[GameConfig::HEIGHT][GameConfig::WIDTH], int co
         }
     }
 
-
-    if (isCannonActive_) {
+    if (hasCannon) {
         Point p = getPointFromDir(cannonDir);
-        int bx = pos.getX() + p.getX();
-        int by = pos.getY() + p.getY();
+        int bx = (pos.getX() + p.getX() + GameConfig::WIDTH) % GameConfig::WIDTH;
+        int by = (pos.getY() + p.getY() + GameConfig::HEIGHT) % GameConfig::HEIGHT;
         char bg = board[by][bx];
-        gotoxy(GameConfig::MINX + bx,
-            GameConfig::MINY + by);
+        gotoxy(GameConfig::MINX + bx, GameConfig::MINY + by);
         cout << bg;
     }
 }
@@ -134,23 +134,15 @@ Point Tank::getPointFromDir(GameConfig::cannonDir dir) const {
 
 void Tank::move(int x, int y, char board[GameConfig::HEIGHT][GameConfig::WIDTH]) {
     Point p(x, y);
-    char tile = board[pos.getY() + y][pos.getX() + x];
-    if (tile == '#' || tile == '%'|| tile=='&') {
-        p.setx(0);
-        p.sety(0);
+    int newX = pos.getX() + p.getX();
+    int newY = pos.getY() + p.getY();
+
+    // If there's a wall, don't move
+    char tile = board[(newY + GameConfig::HEIGHT) % GameConfig::HEIGHT][(newX + GameConfig::WIDTH) % GameConfig::WIDTH];
+    if (tile != '#' && tile != '%') {
+        pos.setx((newX + GameConfig::WIDTH) % GameConfig::WIDTH);
+        pos.sety((newY + GameConfig::HEIGHT) % GameConfig::HEIGHT);
     }
-    pos = pos.add(p);
-
-    if (pos.getX() < 1)
-        pos.setx(GameConfig::WIDTH - 1);
-    else if (pos.getX() >= GameConfig::WIDTH)
-        pos.setx(GameConfig::MINX);
-
-
-    if (pos.getY() < 1)
-        pos.sety(GameConfig::HEIGHT - 1);
-    else if (pos.getY() >= GameConfig::HEIGHT)
-        pos.sety(GameConfig::MINY);
 }
 
 void Tank::setDirection(GameConfig::cannonDir newDir) {
@@ -164,7 +156,7 @@ void Tank::tick() {
 }
 
 void Tank::hitCannon() {
-    isCannonActive_ = false;
+    hasCannon = false;
 }
 
 bool Tank::isAt(const Point& p) const {
