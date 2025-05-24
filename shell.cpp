@@ -2,24 +2,8 @@
 
 
 void Shell::move() {
-    if (position.getX() < 1)
-    {
-        position.setx(GameConfig::WIDTH - 1);
-    }
-    else if (position.getX() >= GameConfig::WIDTH)
-    {
-        position.setx(1);
-    }
-    else position.setx((position.getX() + direction.getX()));
-    if (position.getY() < 1)
-    {
-        position.sety(GameConfig::HEIGHT - 1);
-    }
-    else if (position.getY() >= GameConfig::HEIGHT)
-    {
-        position.sety(GameConfig::MINY);
-    }
-    else position.sety((position.getY() + direction.getY()));
+    position.setx((position.getX() + direction.getX() + GameConfig::WIDTH) % GameConfig::WIDTH);
+    position.sety((position.getY() + direction.getY() + GameConfig::HEIGHT) % GameConfig::HEIGHT);
 }
 
 void Shell::draw(bool colorMode, int colorStep) const {
