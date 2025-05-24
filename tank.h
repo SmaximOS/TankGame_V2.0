@@ -13,7 +13,7 @@ private:
     GameConfig::cannonDir cannonDir;
     bool isAlive = true;
     bool isMoving = false;
-    bool isCannonActive_ = true;
+    bool hasCannon = true;
     int shootCooldown = 0;
     int playerID;
     Point velocity{ 0,0 };
@@ -34,7 +34,7 @@ public:
         }
     }
 
-    bool isCannonActive() const { return isCannonActive_; }
+    bool isCannonActive() const { return hasCannon; }
     bool isTankAlive() const { return isAlive; }
     GameConfig::cannonDir getCannonDir() const { return cannonDir; }
     int getShootCooldown() const { return shootCooldown; }
